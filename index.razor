@@ -1,0 +1,64 @@
+<PageTitle>Index</PageTitle>
+
+<DataGrid   @ref=grid
+                TItem=TestItem
+                Data=@testing
+                Bordered=false
+                Striped=true
+                Sortable="true"
+                Filterable="true"
+                ShowPager="true"
+                PageSize="50"
+                Hoverable="false"
+                RowSelectable="@((item) => false)"
+                RowClicked=@((item) => OnRowPatchesClicked(item.Item))
+                DetailRowTrigger=@((item) => selectedPatches.Contains(item.ID))
+                Class="MainGrid"
+                Resizable="true"
+                Responsive="true"
+                FixedHeader="true"
+                FixedHeaderDataGridHeight=""
+                FixedHeaderDataGridMaxHeight=""
+                Narrow=true>
+                <DataGridColumns>
+                    <DataGridColumn TItem=TestItem Field=@nameof(TestItem.Name) Caption="Name" />
+                </DataGridColumns>
+                <DetailRowTemplate>
+                    @context.ID, @System.Text.Encoding.Default.GetString(context.Bytes)
+                </DetailRowTemplate>
+</DataGrid>
+
+@code {
+    DataGrid<TestItem> grid;
+    List<TestItem> testing = new List<TestItem>();
+    private List<int> selectedPatches = new();
+
+    protected override void OnInitialized()
+    {
+        for (int i = 0; i < 10000; i++)
+            testing.Add(new TestItem("Test " + i, i));
+    }
+
+    public async Task OnRowPatchesClicked(TestItem patchPolicy)
+    {
+        if (selectedPatches.Contains(patchPolicy.ID))
+            selectedPatches.Remove(patchPolicy.ID);
+        else
+            selectedPatches.Add(patchPolicy.ID);
+       // await grid.ToggleDetailRow(patchPolicy);
+    }
+
+    public class TestItem
+    {
+        public string Name { get; set; }
+        public int ID { get; set; }
+        public byte[] Bytes { get; set; }
+
+        public TestItem(string Name, int ID)
+        {
+            this.Name = Name;
+            this.ID = ID;
+            this.Bytes = new byte[0x5000];
+        }
+    }
+}
